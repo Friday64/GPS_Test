@@ -46,17 +46,19 @@ ser = serial.Serial(port='/dev/ttyACM0', baudrate=9600, timeout=1)
 gps_data = {}
 
 try:
-    with open("gps_data.txt", "a") as file:
-        print("GPS Logger is running. Press CTRL+C to stop.")
-        while True:
-            data = ser.readline().decode('ascii', errors='replace').strip()
-            process_gps_data(data, gps_data)
-            if 'timestamp' in gps_data and 'latitude' in gps_data and 'longitude' in gps_data:
-                log_entry = f"{gps_data['timestamp']} - Latitude: {gps_data['latitude']}, Longitude: {gps_data['longitude']}, Altitude: {gps_data.get('altitude', 'N/A')}\n"
+    while True:
+        data = ser.readline().decode('ascii', errors='replace').strip()
+        process_gps_data(data, gps_data)
+        if 'timestamp' in gps_data and 'latitude' in gps_data and 'longitude' in gps_data:
+            log_entry = f"{gps_data['timestamp']} - Latitude: {gps_data['latitude']}, Longitude: {gps_data['longitude']}, Altitude: {gps_data.get('altitude', 'N/A')}\n"
+            file =  open("gps_data.txt", "a")
+            try:
                 file.write(log_entry)
-                file.flush()
+                file.flush()   
                 print("Data logged")
                 gps_data.clear()  # Clear data after logging to ensure each log is fresh
+            finally:
+                file.close()
 except KeyboardInterrupt:
     print("GPS Logger stopped by user.")
 except Exception as e:
